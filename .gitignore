@@ -1,1 +1,12 @@
 bin/\nobj/\nnode_modules/\n.env
+
+# Visual Studio workspace files
+.vs/
+
+# Build outputs
+**/bin/
+**/obj/
+
+# User‐specific files
+*.user
+*.suo
