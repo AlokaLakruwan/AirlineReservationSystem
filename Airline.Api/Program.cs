@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Airline.Data;
 using Airline.Data.Repositories;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +18,18 @@ builder.Services.AddScoped<IAirportRepository, AirportRepository>();
 builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IAirplaneConfigurationRepository, AirplaneConfigurationRepository>();
+builder.Services.AddScoped<IAirplaneLocationRepository, AirplaneLocationRepository>();
 
 // Add controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    // Option A: Ignore cycles entirely (recommended for simple APIs)
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
+    // Optionally, you can raise the max depth if needed:
+    // options.JsonSerializerOptions.MaxDepth = 64;
+});
 
 // Add OpenAPI
 builder.Services.AddOpenApi();
