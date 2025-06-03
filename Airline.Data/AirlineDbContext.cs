@@ -1,155 +1,98 @@
-﻿using System;
-using System.Collections.Generic;
-using Airline.Data.Models;
+﻿using Airline.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Airline.Data;
-
-public partial class AirlineDbContext : DbContext
+public class AirlineDbContext : DbContext
 {
-    public AirlineDbContext()
-    {
-    }
-
     public AirlineDbContext(DbContextOptions<AirlineDbContext> options)
         : base(options)
-    {
-    }
+    { }
 
-    public virtual DbSet<Airplane> Airplanes { get; set; }
-
-    public virtual DbSet<Airport> Airports { get; set; }
-
-    public virtual DbSet<Booking> Bookings { get; set; }
-
-    public virtual DbSet<Flight> Flights { get; set; }
-
-    public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=tcp:airlineserver2025xyz.database.windows.net,1433;Initial Catalog=airline-db;Persist Security Info=False;User ID=air-adm;Password=A123xyz!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+    public DbSet<Role> Role { get; set; }
+    public DbSet<User> User { get; set; }
+    public DbSet<Airport> Airport { get; set; }
+    public DbSet<Airplane> Airplane { get; set; }
+    public DbSet<AirplaneConfiguration> AirplaneConfiguration { get; set; }
+    public DbSet<AirplaneLocation> AirplaneLocation { get; set; }
+    public DbSet<Flight> Flight { get; set; }
+    public DbSet<Booking> Booking { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Airplane>(entity =>
-        {
-            entity.HasKey(e => e.AirplaneId).HasName("PK__Airplane__5ED76B85A3A02EF9");
+        modelBuilder.Entity<Role>().ToTable("Role");
+        modelBuilder.Entity<User>().ToTable("User");
+        modelBuilder.Entity<Airport>().ToTable("Airport");
+        modelBuilder.Entity<Airplane>().ToTable("Airplane");
+        modelBuilder.Entity<AirplaneConfiguration>().ToTable("AirplaneConfiguration");
+        modelBuilder.Entity<AirplaneLocation>().ToTable("AirplaneLocation");
+        modelBuilder.Entity<Flight>().ToTable("Flight");
+        modelBuilder.Entity<Booking>().ToTable("Booking");
 
-            entity.ToTable("Airplane");
+        modelBuilder.Entity<Role>()
+            .HasMany(r => r.Users)
+            .WithOne(u => u.Role)
+            .HasForeignKey(u => u.RoleId);
 
-            entity.Property(e => e.AirplaneId).HasColumnName("AirplaneID");
-            entity.Property(e => e.CapacityClass).HasMaxLength(255);
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Model).HasMaxLength(255);
-            entity.Property(e => e.TailNumber).HasMaxLength(255);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-        });
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Bookings)
+            .WithOne(b => b.User)
+            .HasForeignKey(b => b.UserId);
 
-        modelBuilder.Entity<Airport>(entity =>
-        {
-            entity.HasKey(e => e.AirportId).HasName("PK__Airport__E3DBE08AF9AA5204");
+        modelBuilder.Entity<Airport>()
+            .HasMany(a => a.DepartingFlights)
+            .WithOne(f => f.OriginAirport)
+            .HasForeignKey(f => f.OriginAirportId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            entity.ToTable("Airport");
+        modelBuilder.Entity<Airport>()
+            .HasMany(a => a.ArrivingFlights)
+            .WithOne(f => f.DestinationAirport)
+            .HasForeignKey(f => f.DestinationAirportId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            entity.Property(e => e.AirportId).HasColumnName("AirportID");
-            entity.Property(e => e.City).HasMaxLength(255);
-            entity.Property(e => e.Code).HasMaxLength(255);
-            entity.Property(e => e.Country).HasMaxLength(255);
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(255);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-        });
+        modelBuilder.Entity<Airplane>()
+            .HasMany(a => a.Configurations)
+            .WithOne(c => c.Airplane)
+            .HasForeignKey(c => c.AirplaneId);
 
-        modelBuilder.Entity<Booking>(entity =>
-        {
-            entity.HasKey(e => e.BookingId).HasName("PK__Booking__73951ACD71DB197B");
+        modelBuilder.Entity<Airplane>()
+            .HasMany(a => a.Flights)
+            .WithOne(f => f.Airplane)
+            .HasForeignKey(f => f.AirplaneId);
 
-            entity.ToTable("Booking");
+        modelBuilder.Entity<Airplane>()
+            .HasOne(a => a.Location)
+            .WithOne(l => l.Airplane)
+            .HasForeignKey<AirplaneLocation>(l => l.AirplaneId);
 
-            entity.Property(e => e.BookingId).HasColumnName("BookingID");
-            entity.Property(e => e.BookingDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.FlightId).HasColumnName("FlightID");
-            entity.Property(e => e.SeatNumber).HasMaxLength(255);
-            entity.Property(e => e.ServiceClass).HasMaxLength(255);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+        modelBuilder.Entity<AirplaneLocation>()
+            .HasOne(l => l.Airplane)
+            .WithOne(a => a.Location)
+            .HasForeignKey<AirplaneLocation>(l => l.AirplaneId);
 
-            entity.HasOne(d => d.Flight).WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.FlightId)
-                .HasConstraintName("FK__Booking__FlightI__7E37BEF6");
+        modelBuilder.Entity<AirplaneLocation>()
+            .HasOne(l => l.Airport)
+            .WithMany(a => a.AirplaneLocations)
+            .HasForeignKey(l => l.CurrentAirportId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.User).WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Booking__UserID__7D439ABD");
-        });
+        modelBuilder.Entity<Flight>()
+            .HasMany(f => f.Bookings)
+            .WithOne(b => b.Flight)
+            .HasForeignKey(b => b.FlightId);
 
-        modelBuilder.Entity<Flight>(entity =>
-        {
-            entity.HasKey(e => e.FlightId).HasName("PK__Flight__8A9E148E12ED807D");
+        modelBuilder.Entity<Airplane>()
+            .HasCheckConstraint("CHK_Airplane_CapacityClass",
+                "CapacityClass IN ('Small','Medium','Large')");
 
-            entity.ToTable("Flight");
+        modelBuilder.Entity<AirplaneConfiguration>()
+            .HasCheckConstraint("CHK_ApConfig_ClassName",
+                "ClassName IN ('First','Business','Economy')");
 
-            entity.Property(e => e.FlightId).HasColumnName("FlightID");
-            entity.Property(e => e.AirplaneId).HasColumnName("AirplaneID");
-            entity.Property(e => e.ArrivalTime).HasColumnType("datetime");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.DepartureTime).HasColumnType("datetime");
-            entity.Property(e => e.DestinationAirportId).HasColumnName("DestinationAirportID");
-            entity.Property(e => e.FlightNumber).HasMaxLength(255);
-            entity.Property(e => e.OriginAirportId).HasColumnName("OriginAirportID");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        modelBuilder.Entity<Booking>()
+            .HasCheckConstraint("CHK_Booking_ServiceClass",
+                "ServiceClass IN ('First','Business','Economy')");
 
-            entity.HasOne(d => d.Airplane).WithMany(p => p.Flights)
-                .HasForeignKey(d => d.AirplaneId)
-                .HasConstraintName("FK__Flight__Airplane__7C4F7684");
-
-            entity.HasOne(d => d.DestinationAirport).WithMany(p => p.FlightDestinationAirports)
-                .HasForeignKey(d => d.DestinationAirportId)
-                .HasConstraintName("FK__Flight__Destinat__7B5B524B");
-
-            entity.HasOne(d => d.OriginAirport).WithMany(p => p.FlightOriginAirports)
-                .HasForeignKey(d => d.OriginAirportId)
-                .HasConstraintName("FK__Flight__OriginAi__7A672E12");
-        });
-
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A4B0F05CA");
-
-            entity.ToTable("Role");
-
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.RoleName).HasMaxLength(255);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CCACACFBCEA5");
-
-            entity.ToTable("User");
-
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.FirstName).HasMaxLength(255);
-            entity.Property(e => e.LastName).HasMaxLength(255);
-            entity.Property(e => e.PasswordHash).HasMaxLength(255);
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Username).HasMaxLength(255);
-
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK__User__RoleID__797309D9");
-        });
-
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<Booking>()
+            .HasIndex(b => new { b.FlightId, b.SeatNumber }).IsUnique();
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

@@ -3,23 +3,17 @@ using System.Collections.Generic;
 
 namespace Airline.Data.Models;
 
-public partial class Airport
+public class Airport
 {
     public int AirportId { get; set; }
-
-    public string? Code { get; set; }
-
-    public string? Name { get; set; }
-
-    public string? City { get; set; }
-
-    public string? Country { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string City { get; set; } = null!;
+    public string Country { get; set; } = null!;
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Flight> FlightDestinationAirports { get; set; } = new List<Flight>();
-
-    public virtual ICollection<Flight> FlightOriginAirports { get; set; } = new List<Flight>();
+    public ICollection<Flight> DepartingFlights { get; set; } = new List<Flight>();
+    public ICollection<Flight> ArrivingFlights { get; set; } = new List<Flight>();
+    public ICollection<AirplaneLocation> AirplaneLocations { get; set; } = new List<AirplaneLocation>();
 }

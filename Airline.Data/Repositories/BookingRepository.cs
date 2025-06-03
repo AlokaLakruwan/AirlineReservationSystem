@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Airline.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,50 +18,56 @@ namespace Airline.Data.Repositories
 
         public async Task<Booking> GetByIdAsync(int id)
         {
-            return await _context.Bookings
-                .Include(b => b.Flight)
+            return await _context.Booking
                 .Include(b => b.User)
+                .Include(b => b.Flight)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
         }
 
         public async Task<IEnumerable<Booking>> GetAllAsync()
         {
-            return await _context.Bookings
-                .Include(b => b.Flight)
+            return await _context.Booking
                 .Include(b => b.User)
+                .Include(b => b.Flight)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
         {
-            return await _context.Bookings
-                .Include(b => b.Flight)
+            return await _context.Booking
                 .Include(b => b.User)
+                .Include(b => b.Flight)
                 .Where(b => b.UserId == userId)
                 .ToListAsync();
         }
 
         public async Task AddAsync(Booking booking)
         {
-            booking.CreatedAt = DateTime.UtcNow;
-            booking.UpdatedAt = DateTime.UtcNow;
-            await _context.Bookings.AddAsync(booking);
+            await _context.Booking.AddAsync(booking);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Booking booking)
         {
-            booking.UpdatedAt = DateTime.UtcNow;
-            _context.Bookings.Update(booking);
+            var existing = await _context.Booking.FindAsync(booking.BookingId);
+            if (existing == null)
+                throw new InvalidOperationException($"Booking with Id {booking.BookingId} not found.");
+
+            existing.UserId = booking.UserId;
+            existing.FlightId = booking.FlightId;
+            existing.SeatNumber = booking.SeatNumber;
+            existing.ServiceClass = booking.ServiceClass;
+            existing.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
-            if (booking != null)
+            var existing = await _context.Booking.FindAsync(id);
+            if (existing != null)
             {
-                _context.Bookings.Remove(booking);
+                _context.Booking.Remove(existing);
                 await _context.SaveChangesAsync();
             }
         }

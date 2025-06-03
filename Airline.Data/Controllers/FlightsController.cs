@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Airline.Data.Models;
 using Airline.Data.Repositories;
@@ -9,15 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Airline.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class FlightsController : ControllerBase
     {
         private readonly IFlightRepository _flightRepo;
+        private readonly IAirportRepository _airportRepo;
 
-        public FlightsController(IFlightRepository flightRepo)
+        public FlightsController(
+            IFlightRepository flightRepo,
+            IAirportRepository airportRepo)
         {
             _flightRepo = flightRepo;
+            _airportRepo = airportRepo;
         }
 
         [HttpGet]
@@ -31,17 +33,34 @@ namespace Airline.Api.Controllers
         {
             var flight = await _flightRepo.GetByIdAsync(id);
             if (flight == null) return NotFound();
-            return flight;
+            return Ok(flight);
         }
 
-        // GET: api/flights/search?origin=CMB&destination=DEL&date=2025-06-02
+        // GET: api/v1/flights/search?origin=CMB&destination=DEL&date=2025-06-02
         [HttpGet("search")]
-        public async Task<IEnumerable<Flight>> SearchFlights(
+        public async Task<ActionResult<IEnumerable<Flight>>> SearchFlights(
             [FromQuery] string origin,
             [FromQuery] string destination,
             [FromQuery] DateTime date)
         {
-            return await _flightRepo.SearchAsync(origin, destination, date);
+            // 1. Look up origin airport by code
+            var originAirport = await _airportRepo.GetByCodeAsync(origin);
+            if (originAirport == null)
+                return BadRequest($"Origin airport '{origin}' not found.");
+
+            // 2. Look up destination airport by code
+            var destinationAirport = await _airportRepo.GetByCodeAsync(destination);
+            if (destinationAirport == null)
+                return BadRequest($"Destination airport '{destination}' not found.");
+
+            // 3. Call repository using their integer IDs
+            var flights = await _flightRepo.SearchAsync(
+                originAirport.AirportId,
+                destinationAirport.AirportId,
+                date
+            );
+
+            return Ok(flights);
         }
 
         [HttpPost]
@@ -67,4 +86,3 @@ namespace Airline.Api.Controllers
         }
     }
 }
-

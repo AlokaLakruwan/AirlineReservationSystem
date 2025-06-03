@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Airline.Data.Models;
 
@@ -9,8 +6,8 @@ namespace Airline.Data.Repositories
 {
     public interface IBookingRepository
     {
-        Task<Booking> GetByIdAsync(int id);
         Task<IEnumerable<Booking>> GetAllAsync();
+        Task<Booking> GetByIdAsync(int id);
         Task<IEnumerable<Booking>> GetByUserIdAsync(int userId);
         Task AddAsync(Booking booking);
         Task UpdateAsync(Booking booking);
