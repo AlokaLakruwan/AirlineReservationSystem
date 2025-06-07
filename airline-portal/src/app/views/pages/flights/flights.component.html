@@ -18,6 +18,7 @@
       <table class="table table-hover mb-0" *ngIf="flights.length; else noAll">
         <thead>
           <tr>
+            <th>#</th>
             <!-- <th>ID</th> -->
             <th>Number</th>
             <th>Departure</th>
@@ -29,7 +30,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let f of flights">
+          <tr *ngFor="let f of flights; let i = index">
+            <td>{{ i + 1 }}</td>
             <!-- <td>{{ f.flightId }}</td> -->
             <td>{{ f.flightNumber }}</td>
             <td>{{ f.departureTime | date:'short' }}</td>

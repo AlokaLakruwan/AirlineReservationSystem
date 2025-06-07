@@ -18,26 +18,30 @@
       <table class="table table-hover mb-0" *ngIf="bookings.length; else noAll">
         <thead>
           <tr>
+            <th>#</th>
             <!-- <th>ID</th> -->
-            <th>User ID</th>
-            <th>Flight ID</th>
+            <th>User</th>
+            <th>Flight</th>
             <th>Seat</th>
             <th>Class</th>
-            <th>Booking Date</th>
+            <th>Flight Date</th>
+            <th>Created Date</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let b of bookings">
+          <tr *ngFor="let b of bookings; let i = index">
+            <td>{{ i+1 }}</td>
             <!-- <td>{{ b.bookingId }}</td> -->
-            <td>{{ b.userId }}</td>
-            <td>{{ b.flightId }}</td>
+            <td>{{ getUserName(b.userId) }}</td>
+            <td>{{ getFlightNumber(b.flightId!) }}</td>
             <td>{{ b.seatNumber }}</td>
             <td>{{ b.serviceClass }}</td>
-            <td>{{ b.bookingDate | date:'short' }}</td>
+            <td>{{ b.bookingDate | date:"EEEE, MMMM d, y 'at' hh:mm:ss a" }}</td>
+            <td>{{ b.createdAt | date:'yyyy-MM-dd' }}</td>
             <td>
               <button class="btn btn-sm btn-warning me-2" (click)="openEdit(b)">Edit</button>
-              <button class="btn btn-sm btn-danger" (click)="remove(b.bookingId!)">Delete</button>
+              <button class="btn btn-sm btn-danger"  (click)="remove(b.bookingId!)">Delete</button>
             </td>
           </tr>
         </tbody>
@@ -53,41 +57,76 @@
     <div class="modal-dialog"><div class="modal-content">
       <form [formGroup]="bookingForm" (ngSubmit)="save()">
         <div class="modal-header">
-          <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Create' }} Booking</h5>
+          <h5 class="modal-title">{{ isEdit?'Edit':'Create' }} Booking</h5>
           <button type="button" class="btn-close" (click)="cancel()"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">User ID</label>
-            <input type="number" class="form-control" formControlName="userId" />
-            <div *ngIf="bookingForm.get('userId')?.invalid && bookingForm.get('userId')?.touched"
-                 class="text-danger small">Required &ge;1.</div>
+          <!-- User -->
+          <div class="mb-3 position-relative">
+            <label class="form-label">User</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="selectedUserText"
+              [ngModelOptions]="{standalone:true}"
+              (ngModelChange)="onUserChange($event)"
+              (focus)="userOpen=true"
+              (blur)="onUserBlur()"
+              placeholder="Select customer" />
+            <div *ngIf="userOpen" class="dropdown-menu show w-100" style="max-height:200px;overflow:auto">
+              <button class="dropdown-item" *ngFor="let u of filteredUsers"
+                      (mousedown)="selectUser(u,$event)">
+                {{ u.firstName }} {{ u.lastName }}
+              </button>
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Flight ID</label>
-            <input type="number" class="form-control" formControlName="flightId" />
-            <div *ngIf="bookingForm.get('flightId')?.invalid && bookingForm.get('flightId')?.touched"
-                 class="text-danger small">Required &ge;1.</div>
+          <!-- Flight -->
+          <div class="mb-3 position-relative">
+            <label class="form-label">Flight</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="selectedFlightText"
+              [ngModelOptions]="{standalone:true}"
+              (ngModelChange)="onFlightChange($event)"
+              (focus)="flightOpen=true"
+              (blur)="onFlightBlur()"
+              placeholder="Select flight" />
+            <div *ngIf="flightOpen" class="dropdown-menu show w-100" style="max-height:200px;overflow:auto">
+              <button
+                type="button"
+                class="dropdown-item"
+                *ngFor="let f of filteredFlights"
+                (mousedown)="selectFlight(f, $event)">
+                <!-- flight number -->
+                {{ f.flightNumber }}
+                <!-- origin→destination -->
+                &nbsp;|&nbsp;
+                {{ getAirportCode(f.originAirportId) }}
+                &rarr;
+                {{ getAirportCode(f.destinationAirportId) }}
+                <!-- times -->
+                &nbsp;({{ f.departureTime | date:'fullDate' }})
+              </button>
+            </div>
           </div>
+          <!-- Seat -->
           <div class="mb-3">
             <label class="form-label">Seat Number</label>
             <input class="form-control" formControlName="seatNumber" />
-            <div *ngIf="bookingForm.get('seatNumber')?.invalid && bookingForm.get('seatNumber')?.touched"
-                 class="text-danger small">Required.</div>
           </div>
+          <!-- Service Class -->
           <div class="mb-3">
-            <label class="form-label">Service Class</label>
+            <label class="form-label">Class</label>
             <select class="form-select" formControlName="serviceClass">
               <option *ngFor="let c of serviceClasses" [value]="c">{{ c }}</option>
             </select>
-            <div *ngIf="bookingForm.get('serviceClass')?.invalid && bookingForm.get('serviceClass')?.touched"
-                 class="text-danger small">Required.</div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
           <button type="submit" class="btn btn-primary" [disabled]="bookingForm.invalid">
-            {{ isEdit ? 'Update' : 'Create' }}
+            {{ isEdit?'Update':'Create' }}
           </button>
         </div>
       </form>

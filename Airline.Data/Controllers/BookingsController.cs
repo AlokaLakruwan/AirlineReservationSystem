@@ -1,66 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Airline.Data.Models;
-using Airline.Data.Repositories;
+﻿using Airline.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Airline.Api.Controllers
+[ApiController]
+[Route("api/v1/[controller]")]
+public class BookingsController : ControllerBase
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class BookingsController : ControllerBase
+    private readonly IBookingRepository _repo;
+    public BookingsController(IBookingRepository repo) => _repo = repo;
+
+    [HttpPost]
+    public async Task<ActionResult<Booking>> Create(Booking newBooking)
     {
-        private readonly IBookingRepository _bookingRepo;
+        await _repo.AddAsync(newBooking);
+        return CreatedAtAction(nameof(GetById),
+            new { id = newBooking.BookingId },
+            newBooking);
+    }
 
-        public BookingsController(IBookingRepository bookingRepo)
-        {
-            _bookingRepo = bookingRepo;
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, Booking update)
+    {
+        if (id != update.BookingId)
+            return BadRequest("Route ID must match BookingId.");
 
-        [HttpGet]
-        public async Task<IEnumerable<Booking>> GetAll()
-        {
-            return await _bookingRepo.GetAllAsync();
-        }
+        await _repo.UpdateAsync(update);
+        return NoContent();
+    }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Booking>> GetById(int id)
-        {
-            var booking = await _bookingRepo.GetByIdAsync(id);
-            if (booking == null) return NotFound();
-            return booking;
-        }
+    // GET /api/v1/Bookings
+    [HttpGet]
+    public Task<IEnumerable<Booking>> GetAll() => _repo.GetAllAsync();
 
-        // GET: api/bookings/user/3
-        [HttpGet("user/{userId}")]
-        public async Task<IEnumerable<Booking>> GetByUserId(int userId)
-        {
-            return await _bookingRepo.GetByUserIdAsync(userId);
-        }
+    // GET /api/v1/Bookings/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Booking>> GetById(int id)
+    {
+        var b = await _repo.GetByIdAsync(id);
+        return b == null ? NotFound() : b;
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Booking>> Create(Booking newBooking)
-        {
-            await _bookingRepo.AddAsync(newBooking);
-            return CreatedAtAction(nameof(GetById), new { id = newBooking.BookingId }, newBooking);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Booking updatedBooking)
-        {
-            if (id != updatedBooking.BookingId) return BadRequest();
-            await _bookingRepo.UpdateAsync(updatedBooking);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _bookingRepo.DeleteAsync(id);
-            return NoContent();
-        }
+    // DELETE /api/v1/Bookings/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _repo.DeleteAsync(id);
+        return NoContent();
     }
 }

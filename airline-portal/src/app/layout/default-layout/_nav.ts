@@ -21,14 +21,14 @@ export const navItems: INavData[] = [
     iconComponent: { name: 'cil-paper-plane' }
   },
   {
-    name: 'Users',
-    url: '/users',
-    iconComponent: { name: 'cil-user' }
-  },
-  {
     name: 'Airports',
     url: '/airports',
     iconComponent: { name: 'cil-location-pin' }
+  },
+  {
+    name: 'Airplanes',
+    url:  '/airplanes',
+    iconComponent: { name: 'cil-paper-plane' }
   },
   {
     name: 'Reports',
@@ -36,11 +36,11 @@ export const navItems: INavData[] = [
     iconComponent: { name: 'cil-description' }
   },
   {
-    name: 'Airplanes',
-    url:  '/airplanes',
-    iconComponent: { name: 'cil-paper-plane' }
+    name: 'Users',
+    url: '/users',
+    iconComponent: { name: 'cil-user' }
   },
-
+/*
   {
     title: true,
     name: 'Theme'
@@ -319,5 +319,5 @@ export const navItems: INavData[] = [
     url: 'https://coreui.io/angular/docs/',
     iconComponent: { name: 'cil-description' },
     attributes: { target: '_blank' }
-  }
+  }*/
 ];

@@ -24,11 +24,7 @@ builder.Services.AddScoped<IAirplaneLocationRepository, AirplaneLocationReposito
 // Add controllers
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    // Option A: Ignore cycles entirely (recommended for simple APIs)
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
-    // Optionally, you can raise the max depth if needed:
-    // options.JsonSerializerOptions.MaxDepth = 64;
 });
 
 // Add OpenAPI
@@ -40,9 +36,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularDev", policy =>
     {
         policy
-          .WithOrigins("http://localhost:4200")   // <-- allow Angular app origin
-          .AllowAnyHeader()                       // <-- allow any request header
-          .AllowAnyMethod();                      // <-- allow GET, POST, PUT, DELETE, etc.
+          .WithOrigins("http://localhost:4200")   
+          .AllowAnyHeader()                       
+          .AllowAnyMethod();                      
     });
 });
 

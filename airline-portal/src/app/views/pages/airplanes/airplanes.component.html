@@ -18,6 +18,7 @@
       <table class="table table-hover mb-0" *ngIf="airplanes.length; else noAll">
         <thead>
           <tr>
+            <th>#</th>
             <!-- <th>ID</th> -->
             <th>Tail Number</th>
             <th>Model</th>
@@ -26,7 +27,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let a of airplanes">
+          <tr *ngFor="let a of airplanes; let i = index">
+            <td>{{ i + 1 }}</td>
             <!-- <td>{{ a.airplaneId }}</td> -->
             <td>{{ a.tailNumber }}</td>
             <td>{{ a.model }}</td>

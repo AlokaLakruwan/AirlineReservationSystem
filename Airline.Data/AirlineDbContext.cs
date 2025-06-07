@@ -117,5 +117,25 @@ public class AirlineDbContext : DbContext
             // … all your other mappings (keys, FK’s, triggers, etc.) …
         });
 
+        modelBuilder.Entity<Flight>(b => {
+            b.Property(f => f.DepartureTime)
+             .HasColumnType("datetimeoffset");
+            b.Property(f => f.ArrivalTime)
+             .HasColumnType("datetimeoffset");
+            b.Property(f => f.CreatedAt)
+             .HasColumnType("datetimeoffset");
+            b.Property(f => f.UpdatedAt)
+             .HasColumnType("datetimeoffset");
+        });
+
+        modelBuilder.Entity<Booking>(b => {
+            b.Property(x => x.BookingDate)
+             .HasColumnType("datetimeoffset");
+            b.Property(x => x.CreatedAt)
+             .HasColumnType("datetimeoffset");
+            b.Property(x => x.UpdatedAt)
+             .HasColumnType("datetimeoffset");
+        });
+
     }
 }

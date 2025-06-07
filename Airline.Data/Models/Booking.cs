@@ -1,20 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-
-namespace Airline.Data.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Airline.Data.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 public class Booking
 {
-    public int BookingId { get; set; }
-    public DateTimeOffset BookingDate { get; set; }
+    public int BookingId { get; private set; }
+
     public int UserId { get; set; }
     public int FlightId { get; set; }
     public string SeatNumber { get; set; } = null!;
-    public string ServiceClass { get; set; } = null!; // "First","Business","Economy"
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public string ServiceClass { get; set; } = null!;
 
-    // Navigation
-    public User User { get; set; } = null!;
-    public Flight Flight { get; set; } = null!;
+    [Column(TypeName = "datetimeoffset")]
+    public DateTimeOffset BookingDate { get; internal set; }
+
+    [Column(TypeName = "datetimeoffset")]
+    public DateTimeOffset CreatedAt { get; internal set; }
+
+    [Column(TypeName = "datetimeoffset")]
+    public DateTimeOffset? UpdatedAt { get; internal set; }
+
+ 
+
+    [JsonIgnore]
+    [BindNever]
+    [ValidateNever]
+    public User User { get; internal set; } = null!;
+
+    [JsonIgnore]
+    [BindNever]
+    [ValidateNever]
+    public Flight Flight { get; internal set; } = null!;
 }

@@ -26,6 +26,7 @@
       <table class="table table-hover" *ngIf="users.length > 0; else noUsers">
         <thead>
           <tr>
+            <th>#</th>
             <!-- <th>User ID</th> -->
             <th>Username</th>
             <th>First Name</th>
@@ -39,7 +40,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let u of users">
+          <tr *ngFor="let u of users; let i = index">
+            <td>{{ i + 1 }}</td>
             <!-- <td>{{ u.userId }}</td> -->
             <td>{{ u.username }}</td>
             <td>{{ u.firstName }}</td>
