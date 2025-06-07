@@ -45,7 +45,7 @@
             <td>{{ u.firstName }}</td>
             <td>{{ u.lastName }}</td>
             <td>{{ u.email }}</td>
-            <td>{{ u.roleId }}</td>
+            <td>{{ getRoleName(u.roleId) }}</td>
             <td>
               <span [ngClass]="{'text-success': u.isActive, 'text-danger': !u.isActive}">
                 {{ u.isActive ? 'Yes' : 'No' }}
@@ -117,10 +117,14 @@
             <!-- Role ID -->
             <div class="mb-3">
               <label for="roleId" class="form-label">User Role</label>
-              <input id="roleId" type="number" class="form-control" formControlName="roleId" />
+              <select id="roleId" class="form-select" formControlName="roleId">
+                <option *ngFor="let r of roles" [value]="r.roleId">
+                  {{ r.roleName }}
+                </option>
+              </select>
               <div *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched"
-                   class="text-danger small">
-                User Role must be declared.
+                  class="text-danger small">
+                Please select a role.
               </div>
             </div>
             <!-- Is Active -->

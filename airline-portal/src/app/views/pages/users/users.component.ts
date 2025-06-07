@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService, User } from '../../../services/user.service';
+import { RoleService, Role } from '../../../services/role.service';
 
 @Component({
   selector: 'app-users',
@@ -16,7 +17,8 @@ import { UserService, User } from '../../../services/user.service';
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
-  users: User[] = [];
+  users: User[] = [];  
+  roles: Role[] = [];
   loading = false;
   success = '';
   error = '';
@@ -27,11 +29,16 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private userService: UserService, 
+    private roleService: RoleService,
     private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
     this.fetchUsers();
+    this.roleService.getAll().subscribe({
+      next: (rs) => this.roles = rs,
+      error: (err) => console.error('Failed to load user roles', err)
+    });
     this.userForm = this.fb.group({
       username: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
@@ -40,6 +47,11 @@ export class UsersComponent implements OnInit {
       roleId: [1, [Validators.required, Validators.min(1)]],  // default role = 1
       isActive: [true],
     });
+  }
+
+  getRoleName(id: number): string {
+    const found = this.roles.find(r => r.roleId === id);
+    return found ? found.roleName : 'Unknown';
   }
 
   fetchUsers(): void {

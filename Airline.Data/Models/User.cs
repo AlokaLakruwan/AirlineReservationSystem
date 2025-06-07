@@ -15,8 +15,8 @@ public class User
     public string Email { get; set; } = null!;
     public int RoleId { get; set; }
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     [NotMapped]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

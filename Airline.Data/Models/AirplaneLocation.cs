@@ -12,7 +12,7 @@ public class AirplaneLocation
     [Key]
     public int AirplaneId { get; set; }
     public int CurrentAirportId { get; set; }
-    public DateTime LastUpdated { get; set; }
+    public DateTimeOffset LastUpdated { get; set; }
 
     public Airplane Airplane { get; set; } = null!;
     public Airport Airport { get; set; } = null!;

@@ -1,8 +1,91 @@
-<div class="card">
-  <div class="card-header">
-    <strong>Bookings</strong>
+<ng-container *ngIf="loading">
+  <div class="text-center my-4">
+    <div class="spinner-border text-primary" role="status"></div>
   </div>
-  <div class="card-body">
-    <p>Booking page works!</p>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  <div *ngIf="error"   class="alert alert-danger">{{ error   }}</div>
+
+  <button class="btn btn-primary mb-3" (click)="openCreate()">
+    + New Booking
+  </button>
+
+  <div class="card mb-4">
+    <div class="card-header"><strong>Bookings</strong></div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0" *ngIf="bookings.length; else noAll">
+        <thead>
+          <tr>
+            <th>ID</th><th>User ID</th><th>Flight ID</th><th>Seat</th>
+            <th>Class</th><th>Booking Date</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of bookings">
+            <td>{{ b.bookingId }}</td>
+            <td>{{ b.userId }}</td>
+            <td>{{ b.flightId }}</td>
+            <td>{{ b.seatNumber }}</td>
+            <td>{{ b.serviceClass }}</td>
+            <td>{{ b.bookingDate | date:'short' }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="openEdit(b)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="remove(b.bookingId!)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noAll>
+        <div class="text-center text-muted p-4">No bookings found.</div>
+      </ng-template>
+    </div>
   </div>
-</div>
+
+  <!-- Modal -->
+  <div class="modal fade" [class.show]="showForm" [style.display]="showForm?'block':'none'">
+    <div class="modal-dialog"><div class="modal-content">
+      <form [formGroup]="bookingForm" (ngSubmit)="save()">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Create' }} Booking</h5>
+          <button type="button" class="btn-close" (click)="cancel()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">User ID</label>
+            <input type="number" class="form-control" formControlName="userId" />
+            <div *ngIf="bookingForm.get('userId')?.invalid && bookingForm.get('userId')?.touched"
+                 class="text-danger small">Required &ge;1.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Flight ID</label>
+            <input type="number" class="form-control" formControlName="flightId" />
+            <div *ngIf="bookingForm.get('flightId')?.invalid && bookingForm.get('flightId')?.touched"
+                 class="text-danger small">Required &ge;1.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Seat Number</label>
+            <input class="form-control" formControlName="seatNumber" />
+            <div *ngIf="bookingForm.get('seatNumber')?.invalid && bookingForm.get('seatNumber')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Service Class</label>
+            <select class="form-select" formControlName="serviceClass">
+              <option *ngFor="let c of serviceClasses" [value]="c">{{ c }}</option>
+            </select>
+            <div *ngIf="bookingForm.get('serviceClass')?.invalid && bookingForm.get('serviceClass')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="bookingForm.invalid">
+            {{ isEdit ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</ng-container>

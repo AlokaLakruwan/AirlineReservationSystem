@@ -64,19 +64,33 @@ namespace Airline.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Flight>> Create(Flight newFlight)
+        public async Task<ActionResult<Flight>> Create([FromBody] Flight newFlight)
         {
             await _flightRepo.AddAsync(newFlight);
-            return CreatedAtAction(nameof(GetById), new { id = newFlight.FlightId }, newFlight);
+            return CreatedAtAction(nameof(GetById),
+                                   new { id = newFlight.FlightId },
+                                   newFlight);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Flight updatedFlight)
+        public async Task<IActionResult> Update(int id, [FromBody] Flight input)
         {
-            if (id != updatedFlight.FlightId) return BadRequest();
-            await _flightRepo.UpdateAsync(updatedFlight);
+            var existing = await _flightRepo.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.FlightNumber = input.FlightNumber;
+            existing.DepartureTime = input.DepartureTime;
+            existing.ArrivalTime = input.ArrivalTime;
+            existing.OriginAirportId = input.OriginAirportId;
+            existing.DestinationAirportId = input.DestinationAirportId;
+            existing.AirplaneId = input.AirplaneId;
+            existing.UpdatedAt = DateTime.UtcNow;
+            await _flightRepo.UpdateAsync(existing);
+
             return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

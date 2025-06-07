@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Airline.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +33,7 @@ namespace Airline.Data.Repositories
 
         public async Task AddAsync(Airplane airplane)
         {
+            airplane.CreatedAt = DateTime.UtcNow;
             await _context.Airplane.AddAsync(airplane);
             await _context.SaveChangesAsync();
         }
