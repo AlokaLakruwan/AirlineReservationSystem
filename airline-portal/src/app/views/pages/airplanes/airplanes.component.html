@@ -1,0 +1,88 @@
+<ng-container *ngIf="loading">
+  <div class="text-center my-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  <div *ngIf="error"   class="alert alert-danger">{{ error   }}</div>
+
+  <button class="btn btn-primary mb-3" (click)="openCreate()">
+    + New Airplane
+  </button>
+
+  <div class="card mb-4">
+    <div class="card-header"><strong>Airplanes</strong></div>
+    <div class="card-body">
+      <table class="table table-hover mb-0" *ngIf="airplanes.length; else noAll">
+        <thead>
+          <tr>
+            <!-- <th>ID</th> -->
+            <th>Tail Number</th>
+            <th>Model</th>
+            <th>Class</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of airplanes">
+            <!-- <td>{{ a.airplaneId }}</td> -->
+            <td>{{ a.tailNumber }}</td>
+            <td>{{ a.model }}</td>
+            <td>{{ a.capacityClass }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="openEdit(a)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="remove(a.airplaneId!)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noAll>
+        <div class="text-center text-muted p-4">No airplanes found.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" [class.show]="showForm" [style.display]="showForm?'block':'none'">
+    <div class="modal-dialog"><div class="modal-content">
+      <form [formGroup]="airplaneForm" (ngSubmit)="save()">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Create' }} Airplane</h5>
+          <button type="button" class="btn-close" (click)="cancel()"></button>
+        </div>
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Tail Number</label>
+            <input class="form-control" formControlName="tailNumber" />
+            <div *ngIf="airplaneForm.get('tailNumber')?.invalid && airplaneForm.get('tailNumber')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <input class="form-control" formControlName="model" />
+            <div *ngIf="airplaneForm.get('model')?.invalid && airplaneForm.get('model')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Capacity Class</label>
+            <select class="form-select" formControlName="capacityClass">
+              <option *ngFor="let c of capacityClasses" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="airplaneForm.invalid">
+            {{ isEdit ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</ng-container>

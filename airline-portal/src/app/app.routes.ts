@@ -26,6 +26,11 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'airplanes',
+        loadComponent: () => import('./views/pages/airplanes/airplanes.component').then(m => m.AirplanesComponent),
+        data: { title: 'Airplanes' }
+      },
+      {
         path: 'bookings',
         loadComponent: () => import('./views/pages/bookings/bookings.component').then(m => m.BookingsComponent),
         data: {

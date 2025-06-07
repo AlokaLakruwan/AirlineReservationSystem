@@ -14,17 +14,22 @@
 
   <div class="card mb-4">
     <div class="card-header"><strong>Bookings</strong></div>
-    <div class="card-body p-0">
+    <div class="card-body">
       <table class="table table-hover mb-0" *ngIf="bookings.length; else noAll">
         <thead>
           <tr>
-            <th>ID</th><th>User ID</th><th>Flight ID</th><th>Seat</th>
-            <th>Class</th><th>Booking Date</th><th>Actions</th>
+            <!-- <th>ID</th> -->
+            <th>User ID</th>
+            <th>Flight ID</th>
+            <th>Seat</th>
+            <th>Class</th>
+            <th>Booking Date</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let b of bookings">
-            <td>{{ b.bookingId }}</td>
+            <!-- <td>{{ b.bookingId }}</td> -->
             <td>{{ b.userId }}</td>
             <td>{{ b.flightId }}</td>
             <td>{{ b.seatNumber }}</td>

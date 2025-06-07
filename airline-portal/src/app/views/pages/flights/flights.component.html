@@ -14,11 +14,11 @@
 
   <div class="card mb-4">
     <div class="card-header"><strong>Flights</strong></div>
-    <div class="card-body p-0">
+    <div class="card-body">
       <table class="table table-hover mb-0" *ngIf="flights.length; else noAll">
         <thead>
           <tr>
-            <th>ID</th>
+            <!-- <th>ID</th> -->
             <th>Number</th>
             <th>Departure</th>
             <th>Arrival</th>
@@ -30,7 +30,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let f of flights">
-            <td>{{ f.flightId }}</td>
+            <!-- <td>{{ f.flightId }}</td> -->
             <td>{{ f.flightNumber }}</td>
             <td>{{ f.departureTime | date:'short' }}</td>
             <td>{{ f.arrivalTime   | date:'short' }}</td>
