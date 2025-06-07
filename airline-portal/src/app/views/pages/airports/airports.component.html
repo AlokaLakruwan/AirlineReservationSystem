@@ -1,1 +1,96 @@
-<p>airports works!</p>
+<ng-container *ngIf="loading">
+  <div class="text-center my-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <button class="btn btn-primary mb-3" (click)="openCreate()">
+    + New Airport
+  </button>
+
+  <div class="card mb-4">
+    <div class="card-header"><strong>Airports</strong></div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0" *ngIf="airports.length; else noAll">
+        <thead>
+          <tr>
+            <th>ID</th><th>Code</th><th>Name</th><th>City</th><th>Country</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of airports">
+            <td>{{ a.airportId }}</td>
+            <td>{{ a.code }}</td>
+            <td>{{ a.name }}</td>
+            <td>{{ a.city }}</td>
+            <td>{{ a.country }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="openEdit(a)">
+                Edit
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="remove(a.airportId!)">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noAll>
+        <div class="text-center text-muted p-4">No airports found.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" [class.show]="showForm" [style.display]="showForm?'block':'none'">
+    <div class="modal-dialog"><div class="modal-content">
+      <form [formGroup]="airportForm" (ngSubmit)="save()">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Create' }} Airport</h5>
+          <button type="button" class="btn-close" (click)="cancel()"></button>
+        </div>
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Code</label>
+            <input class="form-control" formControlName="code" />
+            <div *ngIf="airportForm.get('code')?.invalid && airportForm.get('code')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input class="form-control" formControlName="name" />
+            <div *ngIf="airportForm.get('name')?.invalid && airportForm.get('name')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">City</label>
+            <input class="form-control" formControlName="city" />
+            <div *ngIf="airportForm.get('city')?.invalid && airportForm.get('city')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Country</label>
+            <input class="form-control" formControlName="country" />
+            <div *ngIf="airportForm.get('country')?.invalid && airportForm.get('country')?.touched"
+                 class="text-danger small">Required.</div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="airportForm.invalid">
+            {{ isEdit ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</ng-container>

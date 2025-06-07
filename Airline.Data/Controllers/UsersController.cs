@@ -65,12 +65,12 @@ namespace Airline.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, User user)
         {
-            if (id != user.UserId) return BadRequest("Route ID must match user.UserId.");
-
+            // 1) Load the tracked entity
             var existing = await _userRepo.GetByIdAsync(id);
             if (existing == null)
                 return NotFound();
 
+            // 2) Copy over only the updatable fields
             existing.Username = user.Username;
             existing.FirstName = user.FirstName;
             existing.LastName = user.LastName;
@@ -79,15 +79,20 @@ namespace Airline.Api.Controllers
             existing.IsActive = user.IsActive;
             existing.UpdatedAt = DateTime.UtcNow;
 
+            // 3) If the client supplied a new plain-text password, hash & store it
             if (!string.IsNullOrWhiteSpace(user.Password))
             {
                 existing.PasswordHash = HashHelper.ComputeSha256Hash(user.Password);
             }
+            // make sure we don’t persist the transient Password field
             user.Password = null;
 
-            await _userRepo.UpdateAsync(user);
+            // 4) Persist _the existing_ entity—NOT the incoming `user`
+            await _userRepo.UpdateAsync(existing);
+
             return NoContent();
         }
+
 
         // DELETE: api/users/{id}
         [HttpDelete("{id}")]
