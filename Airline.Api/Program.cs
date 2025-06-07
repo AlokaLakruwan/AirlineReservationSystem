@@ -34,8 +34,19 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Add OpenAPI
 builder.Services.AddOpenApi();
 
-// Add the Scalar UI for interactive UI
-//builder.Services.AddScalar();
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev", policy =>
+    {
+        policy
+          .WithOrigins("http://localhost:4200")   // <-- allow Angular app origin
+          .AllowAnyHeader()                       // <-- allow any request header
+          .AllowAnyMethod();                      // <-- allow GET, POST, PUT, DELETE, etc.
+    });
+});
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -47,9 +58,8 @@ if (app.Environment.IsDevelopment())
     );
 }
 
+app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

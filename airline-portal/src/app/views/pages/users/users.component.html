@@ -1,0 +1,151 @@
+<ng-container *ngIf="loading">
+  <div class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ success }}
+    <button type="button" class="btn-close" aria-label="Close" (click)="success = ''"></button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" aria-label="Close" (click)="error = ''"></button>
+  </div>
+
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="openCreateForm()">+ New User</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <strong>Users</strong>
+    </div>
+    <div class="card-body">
+      <table class="table table-hover" *ngIf="users.length > 0; else noUsers">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>User Role</th>
+            <th>Active</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.userId }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.firstName }}</td>
+            <td>{{ u.lastName }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.roleId }}</td>
+            <td>
+              <span [ngClass]="{'text-success': u.isActive, 'text-danger': !u.isActive}">
+                {{ u.isActive ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>{{ u.createdAt | date:'short' }}</td>
+            <td>{{ u.updatedAt ? (u.updatedAt | date:'short') : '-' }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="openEditForm(u)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="confirmDelete(u.userId)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noUsers>
+        <div class="text-center text-muted">
+          No users found.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  
+  <div class="modal fade" [class.show]="showForm" [style.display]="showForm ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ isEditMode ? 'Edit User' : 'Create User' }}</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="cancelForm()"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Username -->
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input id="username" class="form-control" formControlName="username" />
+              <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched"
+                   class="text-danger small">
+                Username is required.
+              </div>
+            </div>
+            <!-- First Name -->
+            <div class="mb-3">
+              <label for="firstName" class="form-label">First Name</label>
+              <input id="firstName" class="form-control" formControlName="firstName" />
+              <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+                   class="text-danger small">
+                First name is required.
+              </div>
+            </div>
+            <!-- Last Name -->
+            <div class="mb-3">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input id="lastName" class="form-control" formControlName="lastName" />
+              <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+                   class="text-danger small">
+                Last name is required.
+              </div>
+            </div>
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input id="email" type="email" class="form-control" formControlName="email" />
+              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+                   class="text-danger small">
+                A valid email is required.
+              </div>
+            </div>
+            <!-- Role ID -->
+            <div class="mb-3">
+              <label for="roleId" class="form-label">User Role</label>
+              <input id="roleId" type="number" class="form-control" formControlName="roleId" />
+              <div *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched"
+                   class="text-danger small">
+                User Role must be declared.
+              </div>
+            </div>
+            <!-- Is Active -->
+            <div class="form-check form-switch mb-3" *ngIf="isEditMode">
+              <input id="isActive" class="form-check-input" type="checkbox" formControlName="isActive" />
+              <label for="isActive" class="form-check-label">Active</label>
+            </div>
+            <!-- Password input -->
+            <div class="mb-3" *ngIf="!isEditMode">
+              <label for="password" class="form-label">Password</label>
+              <input id="password" type="password" class="form-control" formControlName="password" />
+              <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
+                   class="text-danger small">
+                Password is required (min 5 characters).
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">
+              {{ isEditMode ? 'Update' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-container>

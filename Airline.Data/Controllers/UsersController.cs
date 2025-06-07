@@ -7,6 +7,7 @@ using Airline.Data.Models;
 using Airline.Data.Repositories;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
+using Airline.Data.Helpers;
 
 namespace Airline.Api.Controllers
 {
@@ -50,16 +51,41 @@ namespace Airline.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> Create(User newUser)
         {
+            if (!string.IsNullOrWhiteSpace(newUser.Password))
+            {
+                newUser.PasswordHash = HashHelper.ComputeSha256Hash(newUser.Password);
+            }
+            newUser.Password = null;
+
             await _userRepo.AddAsync(newUser);
             return CreatedAtAction(nameof(GetById), new { id = newUser.UserId }, newUser);
         }
 
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, User updatedUser)
+        public async Task<IActionResult> Update(int id, User user)
         {
-            if (id != updatedUser.UserId) return BadRequest();
-            await _userRepo.UpdateAsync(updatedUser);
+            if (id != user.UserId) return BadRequest("Route ID must match user.UserId.");
+
+            var existing = await _userRepo.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.Username = user.Username;
+            existing.FirstName = user.FirstName;
+            existing.LastName = user.LastName;
+            existing.Email = user.Email;
+            existing.RoleId = user.RoleId;
+            existing.IsActive = user.IsActive;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrWhiteSpace(user.Password))
+            {
+                existing.PasswordHash = HashHelper.ComputeSha256Hash(user.Password);
+            }
+            user.Password = null;
+
+            await _userRepo.UpdateAsync(user);
             return NoContent();
         }
 
